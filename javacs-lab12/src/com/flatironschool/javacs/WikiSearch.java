@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import redis.clients.jedis.Jedis;
 
@@ -61,7 +62,15 @@ public class WikiSearch {
 	 */
 	public WikiSearch or(WikiSearch that) {
         // FILL THIS IN!
-		return null;
+		Map<String, Integer> ored = new HashMap<String, Integer>(map);
+		Set<String> keys = that.map.keySet();
+
+		for (String s : keys) {
+			int rel = totalRelevance(map.get(s) == null ? 0 : map.get(s), that.map.get(s));
+			ored.put(s, rel);
+		}
+
+		return new WikiSearch(ored);
 	}
 	
 	/**
@@ -72,7 +81,17 @@ public class WikiSearch {
 	 */
 	public WikiSearch and(WikiSearch that) {
         // FILL THIS IN!
-		return null;
+		Map<String, Integer> anded = new HashMap<String, Integer>();
+		Set<String> keys = this.map.keySet();
+
+		for (String s : keys) {
+			if (that.map.containsKey(s)) {
+				int rel = totalRelevance(map.get(s), that.map.get(s));
+				anded.put(s, rel);
+			}
+		}
+
+		return new WikiSearch(anded);
 	}
 	
 	/**
@@ -83,7 +102,16 @@ public class WikiSearch {
 	 */
 	public WikiSearch minus(WikiSearch that) {
         // FILL THIS IN!
-		return null;
+		Map<String, Integer> minused = new HashMap<String, Integer>(map);
+		Set<String> keys = this.map.keySet();
+
+		for (String s : keys) {
+			if (that.map.containsKey(s)) {
+				minused.remove(s);
+			}
+		}
+
+		return new WikiSearch(minused);
 	}
 	
 	/**
@@ -105,7 +133,16 @@ public class WikiSearch {
 	 */
 	public List<Entry<String, Integer>> sort() {
         // FILL THIS IN!
-		return null;
+		List<Entry<String, Integer>> entries = new LinkedList<Entry<String, Integer>>(map.entrySet());
+
+		Comparator<Entry<String, Integer>> comparator = new Comparator<Entry<String, Integer>>() {
+			public int compare(Entry<String, Integer> e1, Entry<String, Integer> e2) {
+				return e1.getValue().compareTo(e2.getValue());
+			}
+		};
+
+		Collections.sort(entries, comparator);
+		return entries;
 	}
 
 	/**
